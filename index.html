@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ポケモンチャンピオンズ 素早さ早見表</title>
+<style>
+:root{--bg:#08080f;--gold:#FFD700;--gold2:#FF8C00;--blue:#6af;--blue2:#8be0ff;--orange:#ffb347;--red:#e74c3c;--purple:rgba(200,140,255,.95);--bar-w:58px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:linear-gradient(170deg,#08080f,#0e0e22 50%,#0a1520);color:#dddde5;font-family:'Helvetica Neue','Hiragino Sans','Hiragino Kaku Gothic ProN',Meiryo,sans-serif;min-height:100vh;overflow-x:hidden}
+input[type=text],input[type=number]{font-family:inherit}
+input[type=range]{accent-color:var(--gold)}
+button{font-family:inherit;border:none;cursor:pointer;-webkit-appearance:none}
+.hdr{background:linear-gradient(135deg,rgba(255,200,0,.08),rgba(255,80,40,.04));border-bottom:1px solid rgba(255,200,0,.12);padding:12px 16px 9px}
+.hdr small{font-size:9px;color:rgba(255,200,0,.45);letter-spacing:3px;font-weight:700}
+.hdr h1{font-size:21px;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-top:2px}
+.sec{padding:6px 14px}
+.tbtn{padding:6px 0;border-radius:7px;font-size:11px;font-weight:700;flex:1;transition:all .15s}
+.mbtn{padding:4px 8px;border-radius:7px;font-size:10px;font-weight:600;transition:all .15s}
+.row{margin-bottom:2px;border-radius:9px;overflow:hidden;position:relative;border:1px solid transparent}
+.row-bar{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,rgba(255,200,0,.035),transparent);transition:width .3s}
+.row-in{position:relative;z-index:1;padding:6px 9px}
+.spd{font-size:17px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.5px;color:var(--gold)}
+.chip{display:inline-flex;flex-direction:column;gap:2px;padding:4px 7px;border-radius:8px;cursor:pointer;transition:all .12s;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)}
+.chip.pty{background:rgba(100,180,255,.15);border-color:rgba(100,180,255,.5)}
+.chip.sel{background:rgba(255,160,0,.12);border-color:rgba(255,160,0,.5)}
+.chip-name{font-size:11.5px;font-weight:700;white-space:nowrap;color:#dddde5}
+.chip.pty .chip-name{color:var(--blue2)}
+.chip.sel .chip-name{color:var(--orange)}
+.chip.mega .chip-name{color:var(--purple)}
+.tag{font-size:9px;font-weight:800;padding:0 4px;border-radius:3px;line-height:15px;white-space:nowrap;display:inline-block}
+.typeb{display:inline-block;padding:0 4px;border-radius:3px;color:#fff;font-size:9px;font-weight:700;margin-right:1px;line-height:14px;text-shadow:0 1px 1px rgba(0,0,0,.25)}
+/* Right sidebar */
+.sidebar{position:fixed;right:0;top:0;bottom:0;width:var(--bar-w);background:rgba(8,8,20,.95);border-left:1px solid rgba(100,180,255,.15);z-index:50;display:flex;flex-direction:column;padding-top:6px;overflow-y:auto}
+.sb-item{padding:5px 3px;text-align:center;font-size:9px;line-height:1.2;cursor:pointer;border-bottom:1px solid rgba(100,180,255,.08)}
+.sb-item:nth-child(even){background:rgba(100,180,255,.04)}
+.sb-spd{font-weight:900;color:var(--gold);font-size:13px;font-variant-numeric:tabular-nums}
+.sb-name{color:var(--blue2);font-weight:600;font-size:9px;line-height:1.15;word-break:break-all}
+/* Modal */
+.modal-bg{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center}
+.modal{width:100%;max-width:420px;background:#1a1a2e;border-radius:16px 16px 0 0;padding:20px 16px 28px;max-height:85vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:800;color:var(--blue2)}
+.modal input[type=text],.modal input[type=number]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(100,180,255,.2);background:rgba(0,0,0,.3);color:#dddde5;font-size:14px;outline:none}
+.modal input[type=number]{color:var(--gold);font-size:24px;font-weight:800;text-align:center}
+.cand{padding:6px 12px;border-radius:8px;border:1px solid rgba(100,180,255,.2);background:rgba(100,180,255,.08);color:var(--blue2);font-size:12px;font-weight:600;touch-action:manipulation}
+.foot{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(8,8,15,.95) 25%);padding:14px 14px 8px;text-align:center;font-size:8px;color:rgba(255,255,255,.15);pointer-events:none}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const{useState,useMemo,useEffect}=React;
+
+const RAW=[
+{n:"メガプテラ",b:150,t:"いわ/ひこう",m:1},{n:"メガフーディン",b:150,t:"エスパー",m:1},
+{n:"メガスピアー",b:145,t:"むし/どく",m:1},
+{n:"ドラパルト",b:142,t:"ドラゴン/ゴースト"},{n:"メガゲッコウガ",b:142,t:"みず/あく",m:1},
+
+
+{n:"メガミミロップ",b:135,t:"ノーマル/かくとう",m:1},{n:"メガライボルト",b:135,t:"でんき",m:1},
+{n:"メガマフォクシー",b:134,t:"ほのお/エスパー",m:1},
+{n:"サンダース",b:130,t:"でんき"},{n:"プテラ",b:130,t:"いわ/ひこう"},
+{n:"メガゲンガー",b:130,t:"ゴースト/どく",m:1},
+{n:"ファイアロー",b:126,t:"ほのお/ひこう"},
+{n:"マニューラ",b:125,t:"あく/こおり"},
+{n:"メガニャオニクス",b:124,t:"エスパー",m:1},
+{n:"マスカーニャ",b:123,t:"くさ/あく"},{n:"オンバーン",b:123,t:"ひこう/ドラゴン"},
+{n:"ゲッコウガ",b:122,t:"みず/あく"},
+{n:"メガピジョット",b:121,t:"ノーマル/ひこう",m:1},
+{n:"オオニューラ",b:120,t:"かくとう/どく",ab:["karuwaza"]},{n:"フーディン",b:120,t:"エスパー"},
+{n:"メガスターミー",b:120,t:"みず/エスパー",m:1},{n:"メガユキメノコ",b:120,t:"こおり/ゴースト",m:1},
+{n:"ルチャブル",b:118,t:"かくとう/ひこう",ab:["karuwaza"]},{n:"メガルチャブル",b:118,t:"かくとう/ひこう",m:1},
+{n:"エンニュート",b:117,t:"どく/ほのお"},
+{n:"エルフーン",b:116,t:"くさ/フェアリー",ab:["youryoku"]},
+{n:"スターミー",b:115,t:"みず/エスパー"},{n:"メガアブソル",b:115,t:"あく",m:1},{n:"メガヘルガー",b:115,t:"あく/ほのお",m:1},
+{n:"ジャローダ",b:113,t:"くさ"},
+{n:"メガルカリオ",b:112,t:"かくとう/はがね",m:1},
+{n:"イッカネズミ",b:111,t:"ノーマル"},
+{n:"ライチュウ",b:110,t:"でんき"},{n:"ゲンガー",b:110,t:"ゴースト/どく"},{n:"ケンタロス",b:110,t:"ノーマル"},
+{n:"エーフィ",b:110,t:"エスパー"},{n:"ヒスイゾロアーク",b:110,t:"ノーマル/ゴースト"},
+{n:"ユキメノコ",b:110,t:"こおり/ゴースト"},
+{n:"アローラライチュウ",b:110,t:"でんき/エスパー",ab:["surftail"]},
+{n:"メガエルレイド",b:110,t:"エスパー/かくとう",m:1},
+{n:"メガエアームド",b:110,t:"はがね/ひこう",m:1},
+{n:"エレザード",b:109,t:"でんき/ノーマル"},{n:"アローラキュウコン",b:109,t:"こおり/フェアリー"},
+{n:"ゴウカザル",b:108,t:"ほのお/かくとう"},
+{n:"レパルダス",b:106,t:"あく",ab:["karuwaza"]},
+{n:"ゾロアーク",b:105,t:"あく"},{n:"クエスパトラ",b:105,t:"エスパー",ab:["kasoku"]},{n:"ライボルト",b:105,t:"でんき"},
+{n:"ミミロップ",b:105,t:"ノーマル"},
+{n:"メガサメハダー",b:105,t:"みず/あく",m:1},{n:"メガカイロス",b:105,t:"むし/ひこう",m:1},
+{n:"マフォクシー",b:104,t:"ほのお/エスパー"},{n:"ニャオニクス",b:104,t:"エスパー"},
+{n:"エモンガ",b:103,t:"でんき/ひこう"},{n:"メガドリュウズ",b:103,t:"じめん/はがね",m:1},
+{n:"ガブリアス",b:102,t:"ドラゴン/じめん"},{n:"トリミアン",b:102,t:"ノーマル"},{n:"メガフラエッテ",b:102,t:"フェアリー",m:1},
+{n:"ヤナッキー",b:101,t:"くさ"},{n:"バオッキー",b:101,t:"ほのお"},{n:"ピジョット",b:101,t:"ノーマル/ひこう"},
+{n:"ヒヤッキー",b:101,t:"みず"},{n:"デデンネ",b:101,t:"でんき/フェアリー"},{n:"メガキラフロル",b:101,t:"いわ/どく",m:1},
+{n:"イルカマン",b:100,t:"みず"},{n:"イルカマン(ヒーロー)",b:100,t:"みず"},
+{n:"リザードン",b:100,t:"ほのお/ひこう"},{n:"ウルガモス",b:100,t:"むし/ほのお"},
+{n:"キュウコン",b:100,t:"ほのお"},{n:"バクフーン",b:100,t:"ほのお"},
+
+{n:"メガオニゴーリ",b:100,t:"こおり",m:1},{n:"メガチャーレム",b:100,t:"かくとう/エスパー",m:1},
+{n:"メガカイリュー",b:100,t:"ドラゴン/ひこう",m:1},{n:"メガガルーラ",b:100,t:"ノーマル",m:1},
+{n:"メガサーナイト",b:100,t:"エスパー/フェアリー",m:1},
+{n:"メガリザードンX",b:100,t:"ほのお/ドラゴン",m:1},{n:"メガリザードンY",b:100,t:"ほのお/ひこう",m:1},
+{n:"サザンドラ",b:98,t:"あく/ドラゴン"},{n:"モルペコ",b:97,t:"でんき/あく"},
+{n:"ミミッキュ",b:96,t:"ゴースト/フェアリー"},
+{n:"リーフィア",b:95,t:"くさ",ab:["youryoku"]},{n:"サメハダー",b:95,t:"みず/あく"},
+{n:"ウインディ",b:95,t:"ほのお"},{n:"グライオン",b:95,t:"じめん/ひこう"},
+{n:"ヒスイバクフーン",b:95,t:"ほのお/ゴースト"},{n:"ヘルガー",b:95,t:"あく/ほのお"},
+{n:"デカヌチャン",b:94,t:"フェアリー/はがね"},
+{n:"ワルビアル",b:92,t:"じめん/あく"},
+{n:"メガガブリアス",b:92,t:"ドラゴン/じめん",m:1},
+{n:"ロトム",b:91,t:"でんき/ゴースト"},
+{n:"ピカチュウ",b:90,t:"でんき"},{n:"ルカリオ",b:90,t:"かくとう/はがね"},{n:"ガルーラ",b:90,t:"ノーマル"},
+{n:"ヒスイウインディ",b:90,t:"ほのお/いわ"},
+{n:"ロズレイド",b:90,t:"くさ/どく"},{n:"メガシャンデラ",b:90,t:"ゴースト/ほのお",m:1},
+{n:"ビビヨン",b:89,t:"むし/ひこう"},
+{n:"ドリュウズ",b:88,t:"じめん/はがね",ab:["sunakaki"]},
+{n:"キラフロル",b:86,t:"いわ/どく"},{n:"ウォッシュロトム",b:86,t:"でんき/みず"},
+{n:"カットロトム",b:86,t:"でんき/くさ"},{n:"ヒートロトム",b:86,t:"でんき/ほのお"},
+{n:"フロストロトム",b:86,t:"でんき/こおり"},{n:"スピンロトム",b:86,t:"でんき/ひこう"},
+{n:"ジャラランガ",b:85,t:"ドラゴン/かくとう"},{n:"ウェーニバル",b:85,t:"みず/かくとう"},
+{n:"バサギリ",b:85,t:"むし/いわ"},{n:"ソウブレイズ",b:85,t:"ほのお/ゴースト"},
+{n:"ヒスイダイケンキ",b:85,t:"みず/あく"},{n:"ヘラクロス",b:85,t:"むし/かくとう"},
+{n:"カイロス",b:85,t:"むし"},{n:"ブリジュラス",b:85,t:"はがね/ドラゴン"},{n:"ドクロッグ",b:85,t:"どく/かくとう"},
+{n:"パンプジン",b:84,t:"ゴースト/くさ"},
+
+{n:"ギャラドス",b:81,t:"みず/ひこう"},{n:"ミロカロス",b:81,t:"みず"},{n:"メガギャラドス",b:81,t:"みず/あく",m:1},
+{n:"サーナイト",b:80,t:"エスパー/フェアリー"},{n:"フシギバナ",b:80,t:"くさ/どく",ab:["youryoku"]},
+{n:"メガニウム",b:80,t:"くさ"},{n:"エルレイド",b:80,t:"エスパー/かくとう"},{n:"オニゴーリ",b:80,t:"こおり"},
+{n:"カイリュー",b:80,t:"ドラゴン/ひこう"},{n:"チルタリス",b:80,t:"ドラゴン/ひこう"},
+{n:"ヌメルゴン",b:80,t:"ドラゴン"},{n:"マンムー",b:80,t:"こおり/じめん"},
+{n:"ナゲツケザル",b:80,t:"かくとう"},{n:"アーボック",b:80,t:"どく"},{n:"チャーレム",b:80,t:"かくとう/エスパー"},
+{n:"シャンデラ",b:80,t:"ゴースト/ほのお"},
+{n:"メガチルタリス",b:80,t:"ドラゴン/フェアリー",m:1},{n:"メガフシギバナ",b:80,t:"くさ/どく",m:1},
+{n:"メガメガニウム",b:80,t:"くさ",m:1},
+{n:"バイバニラ",b:79,t:"こおり"},
+{n:"カメックス",b:78,t:"みず"},{n:"オーダイル",b:78,t:"みず"},
+
+{n:"ホルード",b:78,t:"ノーマル/じめん"},{n:"メガオーダイル",b:78,t:"みず",m:1},{n:"メガカメックス",b:78,t:"みず",m:1},
+{n:"ミルホッグ",b:77,t:"ノーマル"},
+{n:"グレンアルマ",b:75,t:"ほのお/エスパー"},{n:"スコヴィラン",b:75,t:"くさ/ほのお",ab:["youryoku"]},
+{n:"クレッフィ",b:75,t:"はがね/フェアリー"},{n:"スピアー",b:75,t:"むし/どく"},
+{n:"アブソル",b:75,t:"あく"},{n:"ダストダス",b:75,t:"どく"},{n:"フラージェス",b:75,t:"フェアリー"},
+{n:"メガスコヴィラン",b:75,t:"くさ/ほのお",m:1},{n:"メガエンブオー",b:75,t:"ほのお/かくとう",m:1},
+{n:"メガハッサム",b:75,t:"むし/はがね",m:1},{n:"メガヘラクロス",b:75,t:"むし/かくとう",m:1},
+{n:"メガジュペッタ",b:75,t:"ゴースト",m:1},
+{n:"アマージョ",b:72,t:"くさ"},{n:"ペロリーム",b:72,t:"フェアリー",ab:["karuwaza"]},
+{n:"サダイジャ",b:71,t:"じめん"},{n:"ガチゴラス",b:71,t:"いわ/ドラゴン"},{n:"メガバンギラス",b:71,t:"いわ/あく",m:1},
+{n:"ダイケンキ",b:70,t:"みず"},{n:"ウツボット",b:70,t:"くさ/どく",ab:["youryoku"]},
+{n:"ジュナイパー",b:70,t:"くさ/ゴースト"},{n:"レントラー",b:70,t:"でんき"},
+{n:"ニョロトノ",b:70,t:"みず"},{n:"ポットデス",b:70,t:"ゴースト"},
+{n:"ヤバソチャ",b:70,t:"くさ/ゴースト"},{n:"アップリュー",b:70,t:"くさ/ドラゴン"},
+{n:"バリコオル",b:70,t:"こおり/エスパー"},{n:"ポワルン",b:70,t:"ノーマル"},
+{n:"エアームド",b:70,t:"はがね/ひこう"},
+{n:"メガピクシー",b:70,t:"フェアリー",m:1},{n:"メガウツボット",b:70,t:"くさ/どく",m:1},
+{n:"アーマーガア",b:67,t:"ひこう/はがね"},
+{n:"ラウドボーン",b:66,t:"ほのお/ゴースト"},
+{n:"ハッサム",b:65,t:"むし/はがね"},{n:"エンブオー",b:65,t:"ほのお/かくとう"},
+{n:"グレイシア",b:65,t:"こおり"},{n:"シャワーズ",b:65,t:"みず"},{n:"ブースター",b:65,t:"ほのお"},
+{n:"ブラッキー",b:65,t:"あく"},{n:"ペリッパー",b:65,t:"みず/ひこう"},
+{n:"チリーン",b:65,t:"エスパー"},{n:"アヤシシ",b:65,t:"ノーマル/エスパー"},
+{n:"ジュペッタ",b:65,t:"ゴースト"},{n:"ミミズズ",b:65,t:"はがね"},{n:"メガチリーン",b:65,t:"エスパー",m:1},
+{n:"ブリガロン",b:64,t:"くさ/かくとう"},{n:"マホイップ",b:64,t:"フェアリー"},
+{n:"バンギラス",b:61,t:"いわ/あく"},
+{n:"ニンフィア",b:60,t:"フェアリー"},{n:"アシレーヌ",b:60,t:"みず/フェアリー"},
+{n:"ヒスイジュナイパー",b:60,t:"くさ/かくとう"},{n:"ヒスイヌメルゴン",b:60,t:"はがね/ドラゴン"},
+{n:"ヤレユータン",b:60,t:"ノーマル/エスパー"},{n:"ユキノオー",b:60,t:"くさ/こおり"},
+{n:"リキキリン",b:60,t:"ノーマル/エスパー"},{n:"ギルガルド",b:60,t:"はがね/ゴースト"},
+{n:"ピクシー",b:60,t:"フェアリー"},
+{n:"フレフワン",b:60,t:"フェアリー"},{n:"ガオガエン",b:60,t:"ほのお/あく"},
+{n:"ブロスター",b:59,t:"みず"},
+{n:"アマルルガ",b:58,t:"いわ/こおり"},{n:"ラムパルド",b:58,t:"いわ"},{n:"ゴロンダ",b:58,t:"かくとう/あく"},
+{n:"オーロット",b:56,t:"ゴースト/くさ"},{n:"ドダイトス",b:56,t:"くさ/じめん"},
+{n:"ゴルーグ",b:55,t:"じめん/ゴースト"},
+{n:"マリルリ",b:50,t:"みず/フェアリー"},
+{n:"ドデカバシ",b:50,t:"ノーマル/ひこう"},{n:"ツンベアー",b:50,t:"こおり",ab:["yukikaki","suisui"]},
+{n:"カバルドン",b:47,t:"じめん"},
+{n:"ケケンカニ",b:43,t:"かくとう/こおり"},
+{n:"ドヒドイデ",b:35,t:"どく/みず"},
+{n:"マッギョ",b:32,t:"じめん/でんき"},{n:"ガラルマッギョ",b:32,t:"じめん/はがね"},
+{n:"ヤドラン",b:30,t:"みず/エスパー"},
+{n:"クレベース",b:28,t:"こおり"},{n:"ヒスイクレベース",b:38,t:"こおり/いわ"},
+{n:"コータス",b:20,t:"ほのお"},
+,
+{n:"アリアドス",b:40,t:"むし/どく"},{n:"エンペルト",b:60,t:"みず/はがね"},{n:"オニシズクモ",b:42,t:"みず/むし"},{n:"カイリキー",b:55,t:"かくとう"},{n:"カビゴン",b:30,t:"ノーマル"},{n:"カミツオロチ",b:55,t:"くさ/ドラゴン"},{n:"ガラルヤドキング",b:30,t:"どく/エスパー"},{n:"ガラルヤドラン",b:30,t:"どく/エスパー"},{n:"キョジオーン",b:35,t:"いわ"},{n:"ジジーロン",b:36,t:"ノーマル/ドラゴン"},{n:"タブンネ",b:50,t:"ノーマル"},{n:"タルップル",b:30,t:"くさ/ドラゴン"},{n:"デスカーン",b:30,t:"ゴースト"},{n:"デスバーン",b:30,t:"ゴースト/じめん"},{n:"デンリュウ",b:55,t:"でんき"},{n:"トリデプス",b:30,t:"いわ/はがね"},{n:"ドサイドン",b:40,t:"じめん/いわ"},{n:"ドドゲザン",b:50,t:"あく/はがね"},{n:"ハガネール",b:30,t:"はがね/じめん"},{n:"ハラバリー",b:45,t:"でんき"},{n:"バクーダ",b:20,t:"ほのお/じめん"},{n:"バンバドロ",b:35,t:"じめん"},{n:"パルデアケンタロス闘",b:100,t:"かくとう"},{n:"パルデアケンタロス炎",b:100,t:"ほのお/かくとう"},{n:"パルデアケンタロス水",b:100,t:"みず/かくとう"},{n:"フォレトス",b:40,t:"むし/はがね"},{n:"フラエッテ えいえんのはな",b:92,t:"フェアリー"},{n:"ブリムオン",b:29,t:"エスパー/フェアリー"},{n:"ボスゴドラ",b:50,t:"はがね/いわ"},{n:"ミカルゲ",b:35,t:"あく/ゴースト"},{n:"ヤミラミ",b:50,t:"あく/ゴースト"},{n:"ランクルス",b:30,t:"エスパー"},{n:"ローブシン",b:45,t:"かくとう"},{n:"メタモン",b:48,t:"ノーマル"},{n:"ヤドキング",b:30,t:"みず/エスパー"},{n:"イダイトウ♂",b:78,t:"みず/ゴースト",ab:["suisui","scarf_default"]},{n:"イダイトウ♀",b:78,t:"みず/ゴースト",ab:["suisui"]},{n:"ルガルガン(まひる)",b:112,t:"いわ",ab:["sunakaki"]},{n:"ルガルガン(まよなか)",b:82,t:"いわ"},{n:"ルガルガン(たそがれ)",b:110,t:"いわ"},{n:"メガケケンカニ",b:63,t:"かくとう/こおり",m:1},{n:"メガゴルーグ",b:75,t:"じめん/ゴースト",m:1},{n:"メガジジーロン",b:56,t:"ノーマル/ドラゴン",m:1},{n:"メガタブンネ",b:50,t:"ノーマル/フェアリー",m:1},{n:"メガデンリュウ",b:45,t:"でんき/ドラゴン",m:1},{n:"メガハガネール",b:30,t:"はがね/じめん",m:1},{n:"メガバクーダ",b:20,t:"ほのお/じめん",m:1},{n:"メガブリガロン",b:64,t:"くさ/かくとう",m:1},{n:"メガボスゴドラ",b:50,t:"はがね",m:1},{n:"メガヤドラン",b:30,t:"みず/エスパー",m:1},{n:"メガヤミラミ",b:20,t:"あく/ゴースト",m:1},{n:"メガユキノオー",b:30,t:"くさ/こおり",m:1}
+];
+
+const h2k=s=>s.replace(/[\u3041-\u3096]/g,c=>String.fromCharCode(c.charCodeAt(0)+0x60));
+const cS=(b,n,e)=>Math.floor((Math.floor((b*2+31+e*2)*50/100)+5)*n);
+const PKM=RAW.map(p=>({name:p.n,base:p.b,type:p.t,mega:!!p.m,ab:p.ab||[]}));
+const TC={"ノーマル":"#A8A77A","ほのお":"#EE8130","みず":"#6390F0","でんき":"#F7D02C","くさ":"#7AC74C","こおり":"#96D9D6","かくとう":"#C22E28","どく":"#A33EA1","じめん":"#E2BF65","ひこう":"#A98FF3","エスパー":"#F95587","むし":"#A6B91A","いわ":"#B6A136","ゴースト":"#735797","ドラゴン":"#6F35FC","あく":"#705746","はがね":"#B7B7CE","フェアリー":"#D685AD"};
+const AB={karuwaza:{s:"軽",x:[2],c:"#7AC74C"},suisui:{s:"水",x:[2],c:"#6390F0"},sunakaki:{s:"砂",x:[2],c:"#E2BF65"},youryoku:{s:"葉",x:[2],c:"#7AC74C"},yukikaki:{s:"雪",x:[2],c:"#96D9D6"},surftail:{s:"波",x:[2],c:"#F7D02C"},kasoku:{s:"加1",x:[1.5],c:"#EE8130",extra:[{s:"加2",x:2,c:"#e74c3c"}]},scarf_default:{s:"ス",x:[1.5],c:"#e74c3c"}};
+const SPS=[{k:"fastest",l:"最速",nat:1.1,ep:32,c:"#FFD700"},{k:"neutral",l:"準速",nat:1.0,ep:32,c:"#8be0ff"},{k:"noInvest",l:"無振",nat:1.0,ep:0,c:"#999"},{k:"slowest",l:"最遅",nat:0.9,ep:0,c:"#ff8888"}];
+
+// localStorage helpers
+const LS_BOX="pokechamp_box";
+const LS_PARTY="pokechamp_party";
+const loadBox=()=>{try{return JSON.parse(localStorage.getItem(LS_BOX))||[];}catch{return[];}};
+const saveBox=b=>{localStorage.setItem(LS_BOX,JSON.stringify(b));};
+const loadParty=()=>{try{return JSON.parse(localStorage.getItem(LS_PARTY))||[];}catch{return[];}};
+const saveParty_=p=>{localStorage.setItem(LS_PARTY,JSON.stringify(p));};
+
+function App(){
+  const[q,setQ]=useState("");
+  const[mega,setMega]=useState(true);
+  const[modes,setModes]=useState(new Set(["fastest"]));
+  const[scarf,setScarf]=useState(false);
+  const[tw,setTw]=useState(false);
+  const[para,setPara]=useState(false);
+  const[abOn,setAbOn]=useState(true);
+  const[selected,setSelected]=useState(new Set());
+  const[filterMode,setFilterMode]=useState(false);
+
+  // Box & Party (localStorage)
+  const[box,setBox]=useState(loadBox);
+  const[party,setParty]=useState(loadParty); // array of box item ids
+  useEffect(()=>{saveBox(box);},[box]);
+  useEffect(()=>{saveParty_(party);},[party]);
+
+  // Modal
+  const[showModal,setShowModal]=useState(false);
+  const[modalMode,setModalMode]=useState("add"); // "add"|"edit"
+  const[modalTarget,setModalTarget]=useState("party"); // "party"|"box"
+  const[editId,setEditId]=useState(null);
+  const[eName,setEName]=useState("");
+  const[eSearch,setESearch]=useState("");
+  const[eNick,setENick]=useState("");
+  const[eSpeed,setESpeed]=useState("");
+  const[eInputMode,setEInputMode]=useState("calc");
+  const[eEp,setEEp]=useState(32);
+  const[eNature,setENature]=useState("up");
+  const[eScarf,setEScarf]=useState(false);
+  // Box panel
+  const[showBox,setShowBox]=useState(false);
+
+  const togMode=k=>{setModes(p=>{const n=new Set(p);n.has(k)?n.size>1&&n.delete(k):n.add(k);return n;});};
+  const toggleSel=n=>{setSelected(p=>{const s=new Set(p);s.has(n)?s.delete(n):s.add(n);return s;});};
+
+  // Party items resolved from box
+  const partyItems=useMemo(()=>party.map(id=>box.find(b=>b.id===id)).filter(Boolean).sort((a,b)=>b.speed-a.speed),[party,box]);
+  const partyNames=useMemo(()=>new Set(partyItems.map(p=>p.pokemon)),[partyItems]);
+
+  // Edit modal
+  const eCands=useMemo(()=>{
+    if(!eSearch)return[];
+    const qk=h2k(eSearch);
+    return PKM.filter(p=>p.name.includes(qk)||p.name.toLowerCase().includes(eSearch.toLowerCase())).slice(0,8);
+  },[eSearch]);
+  const eCalcSpd=useMemo(()=>{
+    if(!eName)return 0;
+    const p=PKM.find(x=>x.name===eName);if(!p)return 0;
+    const nat=eNature==="up"?1.1:eNature==="down"?0.9:1.0;
+    return cS(p.base,nat,eEp);
+  },[eName,eEp,eNature]);
+
+  const openAddParty=()=>{setModalMode("add");setModalTarget("party");setEditId(null);setEName("");setESearch("");setENick("");setESpeed("");setEInputMode("calc");setEEp(32);setENature("up");setEScarf(false);setShowModal(true);};
+  const openAddBox=()=>{setModalMode("add");setModalTarget("box");setEditId(null);setEName("");setESearch("");setENick("");setESpeed("");setEInputMode("calc");setEEp(32);setENature("up");setEScarf(false);setShowModal(true);};
+  const openEdit=(id)=>{
+    const item=box.find(b=>b.id===id);if(!item)return;
+    setModalMode("edit");setModalTarget("box");setEditId(id);setEName(item.pokemon);setESearch("");setENick(item.nick||"");
+    setESpeed(String(item.speed));setEInputMode(item.inputMode||"calc");setEEp(item.ep??32);setENature(item.nature||"up");setEScarf(!!item.scarf);setShowModal(true);
+  };
+
+  const saveItem=()=>{
+    if(!eName)return;
+    let spd;
+    if(eInputMode==="direct"){spd=parseInt(eSpeed)||0;}
+    else{spd=eCalcSpd;if(eScarf)spd=Math.floor(spd*1.5);}
+    if(spd<=0)return;
+    const id=editId||Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    const item={id,pokemon:eName,nick:eNick,speed:spd,inputMode:eInputMode,ep:eEp,nature:eNature,scarf:eInputMode==="calc"&&eScarf};
+    if(editId){setBox(box.map(b=>b.id===editId?item:b));}
+    else{
+      setBox(prev=>[...prev,item]);
+      if(modalTarget==="party"){setParty(prev=>[...prev,id]);}
+    }
+    setShowModal(false);
+  };
+  const removeFromBox=(id)=>{setBox(box.filter(b=>b.id!==id));setParty(party.filter(p=>p!==id));};
+  const toggleParty=(id)=>{
+    if(party.includes(id)){setParty(party.filter(p=>p!==id));}
+    else{setParty([...party,id]);}
+  };
+
+  // Main list
+  const grouped=useMemo(()=>{
+    let d=PKM.filter(p=>mega||!p.mega);
+    if(q){const qk=h2k(q);d=d.filter(p=>p.name.includes(qk)||p.name.toLowerCase().includes(q.toLowerCase())||p.type.includes(q)||p.type.includes(qk));}
+    if(filterMode&&selected.size>0){const all=new Set([...selected,...partyItems.map(p=>p.pokemon)]);d=d.filter(p=>all.has(p.name));}
+    const items=[];
+    d.forEach(p=>{
+      for(const mk of modes){
+        const sp=SPS.find(s=>s.k===mk);const bs=cS(p.base,sp.nat,sp.ep);
+        const mt=modes.size>1?[{l:sp.l,c:sp.c}]:[];
+        items.push({p,speed:bs,tags:[...mt]});
+        if(scarf&&!p.mega)items.push({p,speed:Math.floor(bs*1.5),tags:[...mt,{l:"ス",c:"#e74c3c"}]});
+        if(tw)items.push({p,speed:Math.floor(bs*2),tags:[...mt,{l:"追",c:"#A98FF3"}]});
+        if(para)items.push({p,speed:Math.floor(bs*.5),tags:[...mt,{l:"痺",c:"#f39c12"}]});
+        if(abOn&&p.ab.length>0)p.ab.forEach(ak=>{const a=AB[ak];if(!a)return;a.x.forEach(mult=>{items.push({p,speed:Math.floor(bs*mult),tags:[...mt,{l:a.s,c:a.c}]});});if(a.extra)a.extra.forEach(ex=>{items.push({p,speed:Math.floor(bs*ex.x),tags:[...mt,{l:ex.s,c:ex.c}]});});});
+      }
+    });
+    const m=new Map();items.forEach(i=>{if(!m.has(i.speed))m.set(i.speed,[]);m.get(i.speed).push(i);});
+    return[...m.entries()].sort((a,b)=>b[0]-a[0]).map(([v,e])=>({v,e:e.sort((a,b)=>b.p.base-a.p.base)}));
+  },[q,mega,modes,scarf,tw,para,abOn,filterMode,selected,partyItems]);
+
+  const mx=grouped.length>0?grouped[0].v:200;
+  const hasParty=partyItems.length>0;
+
+  return <div style={{paddingRight:hasParty?"var(--bar-w)":"0"}}>
+    {/* Header */}
+    <div className="hdr"><small>POKÉMON CHAMPIONS</small><h1>素早さ早見表</h1></div>
+
+    {/* Party + Box */}
+    <div className="sec" style={{paddingBottom:0}}>
+      <div style={{display:"flex",alignItems:"center",marginBottom:"4px"}}>
+        <span style={{fontSize:"11px",fontWeight:700,color:"var(--blue)"}}>● マイパーティ {partyItems.length>0?`(${partyItems.length})`:""}</span>
+        <button onClick={openAddParty} className="mbtn" style={{marginLeft:"8px",
+          border:"1px solid rgba(100,180,255,.3)",background:"rgba(100,180,255,.1)",color:"var(--blue)"}}>+ 新規</button>
+        <div style={{flex:1}}/>
+        <button onClick={()=>setShowBox(!showBox)} className="mbtn"
+          style={{border:"1px solid rgba(100,180,255,.2)",background:"rgba(100,180,255,.06)",color:"rgba(100,180,255,.6)"}}>
+          📦 ボックス{box.length>0?` (${box.length})`:""}</button>
+      </div>
+      {partyItems.length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:"4px",marginBottom:"4px"}}>
+        {partyItems.map(m=><div key={m.id} style={{display:"flex",alignItems:"center",gap:"4px",
+          padding:"3px 8px",borderRadius:"6px",background:"rgba(100,180,255,.1)",border:"1px solid rgba(100,180,255,.25)",
+          fontSize:"11px",fontWeight:600,color:"var(--blue2)"}}>
+          {m.scarf&&<span style={{fontSize:"9px",color:"var(--red)",fontWeight:800}}>【ス】</span>}
+          <span>{m.nick||m.pokemon}</span>
+          <span style={{fontWeight:800,color:"var(--gold)",fontSize:"12px"}}>{m.speed}</span>
+          <span onClick={()=>toggleParty(m.id)} style={{opacity:.5,fontSize:"10px",lineHeight:1,cursor:"pointer"}} title="ボックスに戻す">📦</span>
+        </div>)}
+      </div>}
+    </div>
+
+    {/* Box panel */}
+    {showBox&&<div className="sec" style={{paddingTop:0}}>
+      <div style={{padding:"8px",borderRadius:"10px",background:"rgba(100,180,255,.04)",border:"1px solid rgba(100,180,255,.12)"}}>
+        {box.length===0?<div style={{fontSize:"11px",color:"rgba(255,255,255,.3)",textAlign:"center",padding:"8px"}}>
+          ボックスは空です。</div>
+        :<div style={{display:"flex",flexWrap:"wrap",gap:"3px",marginBottom:"6px"}}>
+          {[...box].sort((a,b)=>b.speed-a.speed).map(item=>{
+            const inParty=party.includes(item.id);
+            return <div key={item.id} style={{display:"flex",alignItems:"center",gap:"3px",
+              padding:"3px 6px",borderRadius:"6px",fontSize:"10px",fontWeight:600,cursor:"pointer",
+              background:inParty?"rgba(100,180,255,.15)":"rgba(255,255,255,.04)",
+              border:`1px solid ${inParty?"rgba(100,180,255,.35)":"rgba(255,255,255,.08)"}`,
+              color:inParty?"var(--blue2)":"rgba(255,255,255,.5)"}}>
+              <span onClick={()=>toggleParty(item.id)} style={{flex:1}}>
+                {item.scarf&&<span style={{color:"var(--red)",fontWeight:800}}>【ス】</span>}
+                {item.nick||item.pokemon} <span style={{color:"var(--gold)",fontWeight:800}}>{item.speed}</span>
+              </span>
+              <span onClick={()=>openEdit(item.id)} style={{opacity:.4,fontSize:"9px"}}>✎</span>
+              <span onClick={()=>removeFromBox(item.id)} style={{opacity:.3,fontSize:"11px"}}>×</span>
+            </div>;
+          })}
+        </div>}
+        <button onClick={openAddBox} className="mbtn" style={{width:"100%",padding:"6px",
+          border:"1px solid rgba(100,180,255,.2)",background:"rgba(100,180,255,.06)",color:"rgba(100,180,255,.6)",fontSize:"11px"}}>
+          + ボックスに追加</button>
+      </div>
+    </div>}
+
+    {/* Selection filter */}
+    {selected.size>0&&<div className="sec" style={{paddingTop:0}}>
+      <div style={{display:"flex",flexWrap:"wrap",gap:"3px",alignItems:"center"}}>
+        <span style={{fontSize:"10px",color:"var(--orange)",fontWeight:600}}>◆ 選択中 {selected.size}匹</span>
+        <button onClick={()=>setFilterMode(!filterMode)} className="mbtn"
+          style={{background:filterMode?"linear-gradient(135deg,#FF8C00,#FFD700)":"rgba(255,160,0,.15)",
+          color:filterMode?"#111":"var(--orange)"}}>{filterMode?"✓ 選択のみ":"選択のみ表示"}</button>
+        <button onClick={()=>{setSelected(new Set());setFilterMode(false);}} className="mbtn"
+          style={{border:"1px solid rgba(255,255,255,.08)",background:"transparent",color:"rgba(255,255,255,.3)"}}>クリア</button>
+      </div>
+    </div>}
+
+    {/* Search */}
+    <div className="sec">
+      <input type="text" placeholder="ひらがな・カタカナ・タイプで検索..." value={q} onChange={e=>setQ(e.target.value)}
+        style={{width:"100%",padding:"8px 12px",borderRadius:"10px",border:"1px solid rgba(255,200,0,.12)",
+          background:"rgba(255,255,255,.04)",color:"#dddde5",fontSize:"14px",outline:"none"}}/>
+    </div>
+
+    {/* Controls */}
+    <div className="sec">
+      <div style={{fontSize:"10px",color:"rgba(255,255,255,.3)",marginBottom:"3px",fontWeight:600}}>性格・振り方（複数可）</div>
+      <div style={{display:"flex",gap:"3px",marginBottom:"6px"}}>
+        {SPS.map(s=>{const on=modes.has(s.k);return <button key={s.k} onClick={()=>togMode(s.k)} className="tbtn"
+          style={{border:`1px solid ${on?s.c+"60":"rgba(255,255,255,.06)"}`,background:on?s.c+"18":"rgba(255,255,255,.02)",color:on?s.c:"rgba(255,255,255,.3)"}}>{s.l}</button>;})}
+      </div>
+      <div style={{fontSize:"10px",color:"rgba(255,255,255,.3)",marginBottom:"3px",fontWeight:600}}>補正・特性</div>
+      <div style={{display:"flex",gap:"4px",flexWrap:"wrap",marginBottom:"4px"}}>
+        {[{on:scarf,set:setScarf,i:"🧣",l:"ス",f:"スカーフ",c:"#e74c3c"},
+          {on:tw,set:setTw,i:"💨",l:"追",f:"追い風",c:"#A98FF3"},
+          {on:para,set:setPara,i:"⚡",l:"痺",f:"まひ",c:"#f39c12"},
+          {on:abOn,set:setAbOn,i:"✦",l:"",f:"特性倍速",c:"#7AC74C",sub:"軽/水/砂/葉/雪/波/加速"}
+        ].map((m,i)=><button key={i} onClick={()=>m.set(!m.on)} className="mbtn"
+          style={{border:`1px solid ${m.on?m.c+"50":"rgba(255,255,255,.06)"}`,background:m.on?m.c+"18":"rgba(255,255,255,.02)",color:m.on?m.c:"rgba(255,255,255,.3)"}}>
+          {m.i} {m.l?`【${m.l}】`:""}{m.f}{m.sub&&<span style={{opacity:.6,marginLeft:"3px"}}>{m.sub}</span>}</button>)}
+        <button onClick={()=>setMega(!mega)} className="mbtn"
+          style={{border:`1px solid ${mega?"rgba(180,100,255,.35)":"rgba(255,255,255,.06)"}`,
+          background:mega?"rgba(180,100,255,.1)":"rgba(255,255,255,.02)",color:mega?"rgba(180,100,255,.8)":"rgba(255,255,255,.3)"}}>
+          {mega?"✦ メガ":"✧ メガ"}</button>
+      </div>
+    </div>
+
+    {/* Main list */}
+    <div style={{padding:"0 6px 90px"}}>
+      {grouped.map(({v,e},gi)=>{
+        const bw=mx>0?(v/mx)*100:0;
+        const ptyHere=partyItems.filter(m=>m.speed===v);
+        return <div key={`${v}-${gi}`} className="row">
+          <div className="row-bar" style={{width:bw+"%"}}/>
+          <div className="row-in">
+            <div style={{display:"flex",alignItems:"center",gap:"6px",marginBottom:"4px"}}>
+              <span className="spd">{v}</span>
+              {e.length>1&&<span style={{fontSize:"9px",color:"rgba(255,255,255,.2)"}}>{e.length}</span>}
+              {ptyHere.length>0&&<span style={{fontSize:"9px",color:"var(--blue)",fontWeight:700}}>
+                ● {ptyHere.map(m=>m.nick||m.pokemon).join(", ")}</span>}
+            </div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:"3px"}}>
+              {e.map((en,i)=>{
+                const isPty=partyNames.has(en.p.name);
+                const isSel=selected.has(en.p.name);
+                const cls="chip"+(isPty?" pty":"")+(isSel?" sel":"")+(en.p.mega?" mega":"");
+                return <div key={`${en.p.name}-${i}`} className={cls} onClick={()=>toggleSel(en.p.name)}>
+                  <div style={{display:"flex",alignItems:"center",gap:"3px",flexWrap:"wrap"}}>
+                    {isPty&&<span style={{fontSize:"8px",color:"var(--blue)"}}>●</span>}
+                    {isSel&&!isPty&&<span style={{fontSize:"8px",color:"#ffa040"}}>◆</span>}
+                    <span className="chip-name">{en.p.mega&&<span style={{fontSize:"8px",opacity:.65,marginRight:"1px"}}>✦</span>}{en.p.name}</span>
+                    {en.tags.map((t,j)=><span key={j} className="tag" style={{background:t.c+"22",color:t.c,border:`1px solid ${t.c}44`}}>【{t.l}】</span>)}
+                  </div>
+                  <div style={{display:"flex",gap:"1px",alignItems:"center"}}>
+                    {en.p.type.split("/").map(t=><span key={t} className="typeb" style={{background:TC[t]||"#888"}}>{t}</span>)}
+                    <span style={{fontSize:"9px",color:"rgba(255,255,255,.25)",marginLeft:"3px"}}>S{en.p.base}</span>
+                  </div>
+                </div>;
+              })}
+            </div>
+          </div>
+        </div>;
+      })}
+    </div>
+
+    {/* Right sidebar */}
+    {hasParty&&<div className="sidebar">
+      <div style={{fontSize:"8px",color:"rgba(100,180,255,.4)",textAlign:"center",fontWeight:700,marginBottom:"4px",letterSpacing:"1px"}}>MY</div>
+      {partyItems.map((m,mi)=>{
+        const lines=m.nick?[m.nick]:(m.pokemon.startsWith("メガ")?["メガ",m.pokemon.slice(2)]:[m.pokemon]);
+        return <div key={m.id} className="sb-item" onClick={()=>openEdit(m.id)}>
+          <div className="sb-spd">{m.speed}</div>
+          {m.scarf&&<div style={{fontSize:"8px",color:"var(--red)",fontWeight:800,lineHeight:1}}>【ス】</div>}
+          <div className="sb-name">{lines.map((l,li)=><div key={li}>{l}</div>)}</div>
+        </div>;
+      })}
+      <div style={{flex:1}}/>
+      <button onClick={openAddParty} style={{margin:"4px 3px",padding:"6px 0",borderRadius:"6px",
+        border:"1px solid rgba(100,180,255,.2)",background:"rgba(100,180,255,.08)",color:"var(--blue)",fontSize:"10px",fontWeight:700}}>+</button>
+    </div>}
+
+    {/* Modal */}
+    {showModal&&<div className="modal-bg" onClick={()=>setShowModal(false)}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px"}}>
+          <h3>{modalMode==="edit"?"ポケモン編集":"ポケモン登録"}</h3>
+          <button onClick={()=>setShowModal(false)} style={{background:"rgba(255,255,255,.08)",color:"rgba(255,255,255,.5)",borderRadius:"8px",padding:"4px 10px",fontSize:"12px"}}>✕</button>
+        </div>
+
+        {!eName?<>
+          <input type="text" placeholder="ポケモンを検索..." value={eSearch} onChange={e=>setESearch(e.target.value)} autoFocus/>
+          <div style={{marginTop:"8px",display:"flex",flexWrap:"wrap",gap:"4px"}}>
+            {eCands.map(p=><button key={p.name} className="cand"
+              onPointerUp={e=>{e.stopPropagation();setEName(p.name);setESearch("");setESpeed(String(cS(p.base,1.1,32)));}}
+              >{p.name} <span style={{opacity:.5}}>S{p.base}</span></button>)}
+          </div>
+        </>:<>
+          <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"10px",padding:"8px 12px",
+            borderRadius:"8px",background:"rgba(100,180,255,.08)",border:"1px solid rgba(100,180,255,.2)"}}>
+            <span style={{fontSize:"14px",fontWeight:700,color:"var(--blue2)",flex:1}}>{eName}</span>
+            <span style={{fontSize:"11px",color:"rgba(255,255,255,.4)"}}>S{PKM.find(p=>p.name===eName)?.base}</span>
+            <button onClick={()=>setEName("")} style={{background:"rgba(255,255,255,.1)",color:"rgba(255,255,255,.5)",borderRadius:"5px",padding:"2px 8px",fontSize:"10px"}}>変更</button>
+          </div>
+
+          {/* ニックネーム */}
+          <div style={{fontSize:"11px",color:"rgba(255,255,255,.4)",marginBottom:"4px",fontWeight:600}}>ニックネーム（任意）</div>
+          <input type="text" placeholder="例: スカーフガブ、エースガブ..." value={eNick} onChange={e=>setENick(e.target.value)}
+            style={{marginBottom:"10px"}}/>
+
+          {/* 入力モード */}
+          <div style={{display:"flex",gap:"4px",marginBottom:"10px"}}>
+            {[{k:"calc",l:"能力P + 性格で計算"},{k:"direct",l:"実数値を直接入力"}].map(m=>
+              <button key={m.k} onClick={()=>setEInputMode(m.k)} style={{flex:1,padding:"7px",borderRadius:"8px",
+                background:eInputMode===m.k?"rgba(100,180,255,.2)":"rgba(255,255,255,.04)",
+                color:eInputMode===m.k?"var(--blue2)":"rgba(255,255,255,.35)",fontSize:"12px",fontWeight:700}}>{m.l}</button>)}
+          </div>
+
+          {eInputMode==="calc"?<>
+            <div style={{fontSize:"11px",color:"rgba(255,255,255,.4)",marginBottom:"4px",fontWeight:600}}>性格補正</div>
+            <div style={{display:"flex",gap:"4px",marginBottom:"10px"}}>
+              {[{k:"up",l:"↑ 補正あり",c:"#FFD700"},{k:"neutral",l:"― 補正なし",c:"#999"},{k:"down",l:"↓ 下降",c:"#ff8888"}].map(n=>
+                <button key={n.k} onClick={()=>setENature(n.k)} style={{flex:1,padding:"7px 4px",borderRadius:"8px",
+                  border:`1px solid ${eNature===n.k?n.c+"60":"rgba(255,255,255,.06)"}`,
+                  background:eNature===n.k?n.c+"18":"rgba(255,255,255,.02)",
+                  color:eNature===n.k?n.c:"rgba(255,255,255,.3)",fontSize:"10px",fontWeight:700}}>{n.l}</button>)}
+            </div>
+            <div style={{fontSize:"11px",color:"rgba(255,255,255,.4)",marginBottom:"4px",fontWeight:600}}>
+              能力ポイント: <span style={{color:"var(--gold)"}}>{eEp}</span></div>
+            <input type="range" min={0} max={32} value={eEp} onChange={e=>setEEp(Number(e.target.value))} style={{width:"100%",marginBottom:"6px"}}/>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:"9px",color:"rgba(255,255,255,.3)",marginBottom:"10px"}}>
+              <span>0</span><span>8</span><span>16</span><span>24</span><span>32</span></div>
+            <div style={{textAlign:"center",padding:"12px",borderRadius:"10px",background:"rgba(255,215,0,.06)",border:"1px solid rgba(255,215,0,.15)"}}>
+              <div style={{fontSize:"11px",color:"rgba(255,255,255,.4)",marginBottom:"2px"}}>素早さ実数値</div>
+              <div style={{fontSize:"32px",fontWeight:900,color:"var(--gold)",fontVariantNumeric:"tabular-nums"}}>
+                {eScarf?Math.floor(eCalcSpd*1.5):eCalcSpd}</div>
+              {eScarf&&<div style={{fontSize:"11px",color:"rgba(255,255,255,.35)",marginTop:"2px"}}>({eCalcSpd} × 1.5)</div>}
+            </div>
+            <button onClick={()=>setEScarf(!eScarf)} style={{width:"100%",marginTop:"10px",padding:"9px",borderRadius:"8px",
+              border:`1px solid ${eScarf?"#e74c3c60":"rgba(255,255,255,.08)"}`,
+              background:eScarf?"rgba(231,76,60,.15)":"rgba(255,255,255,.03)",
+              color:eScarf?"#e74c3c":"rgba(255,255,255,.35)",fontSize:"12px",fontWeight:700}}>
+              🧣 こだわりスカーフ（×1.5）{eScarf?" ✓":""}</button>
+          </>:<>
+            <div style={{fontSize:"11px",color:"rgba(255,255,255,.4)",marginBottom:"4px",fontWeight:600}}>素早さ実数値</div>
+            <input type="number" value={eSpeed} onChange={e=>setESpeed(e.target.value)}/>
+            <div style={{fontSize:"10px",color:"rgba(255,255,255,.3)",textAlign:"center",marginTop:"4px"}}>
+              ※スカーフ込みの値を直接入力してください</div>
+          </>}
+
+          <button onClick={saveItem} style={{width:"100%",marginTop:"14px",padding:"12px",borderRadius:"10px",
+            background:"linear-gradient(135deg,#6af,#48d)",color:"#fff",fontSize:"14px",fontWeight:800}}>
+            {modalMode==="edit"?"更新する":modalTarget==="party"?"パーティに追加する":"ボックスに登録する"}</button>
+        </>}
+      </div>
+    </div>}
+
+    <div className="foot">Lv50 · 個体値31固定 · ● パーティ ◆ 選択 · タップで選択/解除</div>
+  </div>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
