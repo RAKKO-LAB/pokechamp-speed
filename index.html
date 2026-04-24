@@ -5,45 +5,75 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>ポケモンチャンピオンズ 素早さ早見表</title>
 <style>
-:root{--bg:#08080f;--gold:#FFD700;--gold2:#FF8C00;--blue:#6af;--blue2:#8be0ff;--orange:#ffb347;--red:#e74c3c;--purple:rgba(200,140,255,.95);--bar-w:58px}
+:root{
+  --gold:#FFD700;--gold2:#FF8C00;--blue:#6af;--blue2:#8be0ff;
+  --orange:#ffb347;--red:#e74c3c;--purple:rgba(200,140,255,.95);--bar-w:58px;
+  --bg-from:#08080f;--bg-mid:#0e0e22;--bg-to:#0a1520;
+  --text-primary:#dddde5;--text-muted:rgba(255,255,255,.3);
+  --card-bg:rgba(255,255,255,.035);--card-border:rgba(255,255,255,.06);
+  --btn-bg-off:rgba(255,255,255,.02);--btn-border-off:rgba(255,255,255,.06);
+  --input-bg:rgba(255,255,255,.04);--input-border:rgba(255,200,0,.12);
+  --modal-bg:#1a1a2e;--modal-input-bg:rgba(0,0,0,.3);--modal-input-border:rgba(100,180,255,.2);
+  --modal-close-bg:rgba(255,255,255,.08);--modal-close-color:rgba(255,255,255,.5);
+  --sidebar-bg:rgba(8,8,20,.95);--sidebar-border:rgba(100,180,255,.15);
+  --hdr-border:rgba(255,200,0,.12);
+  --footer-bg:rgba(8,8,15,.95);--footer-color:rgba(255,255,255,.15);
+}
+[data-theme="light"]{
+  --gold:#B8860B;--gold2:#d4700a;--blue:#2563eb;--blue2:#1d4ed8;--orange:#ea580c;
+  --bg-from:#f5f5f8;--bg-mid:#eeeef2;--bg-to:#eeeef2;
+  --text-primary:#1a1a2e;--text-muted:rgba(0,0,0,.4);
+  --card-bg:rgba(0,0,0,.04);--card-border:rgba(0,0,0,.08);
+  --btn-bg-off:rgba(0,0,0,.02);--btn-border-off:rgba(0,0,0,.1);
+  --input-bg:#fff;--input-border:rgba(0,0,0,.15);
+  --modal-bg:#fff;--modal-input-bg:rgba(0,0,0,.04);--modal-input-border:rgba(37,99,235,.25);
+  --modal-close-bg:rgba(0,0,0,.07);--modal-close-color:rgba(0,0,0,.45);
+  --sidebar-bg:rgba(255,255,255,.97);--sidebar-border:rgba(37,99,235,.2);
+  --hdr-border:rgba(180,150,0,.2);
+  --footer-bg:rgba(245,245,248,.97);--footer-color:rgba(0,0,0,.3);
+}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:linear-gradient(170deg,#08080f,#0e0e22 50%,#0a1520);color:#dddde5;font-family:'Helvetica Neue','Hiragino Sans','Hiragino Kaku Gothic ProN',Meiryo,sans-serif;min-height:100vh;overflow-x:hidden}
+body{background:linear-gradient(170deg,var(--bg-from),var(--bg-mid) 50%,var(--bg-to));color:var(--text-primary);font-family:'Helvetica Neue','Hiragino Sans','Hiragino Kaku Gothic ProN',Meiryo,sans-serif;min-height:100vh;overflow-x:hidden}
 input[type=text],input[type=number]{font-family:inherit}
 input[type=range]{accent-color:var(--gold)}
 button{font-family:inherit;border:none;cursor:pointer;-webkit-appearance:none}
-.hdr{background:linear-gradient(135deg,rgba(255,200,0,.08),rgba(255,80,40,.04));border-bottom:1px solid rgba(255,200,0,.12);padding:12px 16px 9px}
+.hdr{background:linear-gradient(135deg,rgba(255,200,0,.08),rgba(255,80,40,.04));border-bottom:1px solid var(--hdr-border);padding:12px 16px 9px}
 .hdr small{font-size:9px;color:rgba(255,200,0,.45);letter-spacing:3px;font-weight:700}
+[data-theme="light"] .hdr small{color:rgba(140,100,0,.6)}
 .hdr h1{font-size:21px;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-top:2px}
+.theme-btn{background:none;font-size:18px;padding:4px 6px;border-radius:8px;line-height:1;border:1px solid var(--btn-border-off)}
 .sec{padding:6px 14px}
 .tbtn{padding:6px 0;border-radius:7px;font-size:11px;font-weight:700;flex:1;transition:all .15s}
 .mbtn{padding:4px 8px;border-radius:7px;font-size:10px;font-weight:600;transition:all .15s}
 .row{margin-bottom:2px;border-radius:9px;overflow:hidden;position:relative;border:1px solid transparent}
 .row-bar{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,rgba(255,200,0,.035),transparent);transition:width .3s}
+[data-theme="light"] .row-bar{background:linear-gradient(90deg,rgba(184,134,11,.05),transparent)}
 .row-in{position:relative;z-index:1;padding:6px 9px}
 .spd{font-size:17px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.5px;color:var(--gold)}
-.chip{display:inline-flex;flex-direction:column;gap:2px;padding:4px 7px;border-radius:8px;cursor:pointer;transition:all .12s;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)}
+.chip{display:inline-flex;flex-direction:column;gap:2px;padding:4px 7px;border-radius:8px;cursor:pointer;transition:all .12s;background:var(--card-bg);border:1px solid var(--card-border)}
 .chip.pty{background:rgba(100,180,255,.15);border-color:rgba(100,180,255,.5)}
 .chip.sel{background:rgba(255,160,0,.12);border-color:rgba(255,160,0,.5)}
-.chip-name{font-size:11.5px;font-weight:700;white-space:nowrap;color:#dddde5}
+.chip-name{font-size:11.5px;font-weight:700;white-space:nowrap;color:var(--text-primary)}
 .chip.pty .chip-name{color:var(--blue2)}
 .chip.sel .chip-name{color:var(--orange)}
 .chip.mega .chip-name{color:var(--purple)}
+[data-theme="light"] .chip.mega .chip-name{color:#7c3aed}
 .tag{font-size:9px;font-weight:800;padding:0 4px;border-radius:3px;line-height:15px;white-space:nowrap;display:inline-block}
 .typeb{display:inline-block;padding:0 4px;border-radius:3px;color:#fff;font-size:9px;font-weight:700;margin-right:1px;line-height:14px;text-shadow:0 1px 1px rgba(0,0,0,.25)}
 /* Right sidebar */
-.sidebar{position:fixed;right:0;top:0;bottom:0;width:var(--bar-w);background:rgba(8,8,20,.95);border-left:1px solid rgba(100,180,255,.15);z-index:50;display:flex;flex-direction:column;padding-top:6px;overflow-y:auto}
+.sidebar{position:fixed;right:0;top:0;bottom:0;width:var(--bar-w);background:var(--sidebar-bg);border-left:1px solid var(--sidebar-border);z-index:50;display:flex;flex-direction:column;padding-top:6px;overflow-y:auto}
 .sb-item{padding:5px 3px;text-align:center;font-size:9px;line-height:1.2;cursor:pointer;border-bottom:1px solid rgba(100,180,255,.08)}
 .sb-item:nth-child(even){background:rgba(100,180,255,.04)}
 .sb-spd{font-weight:900;color:var(--gold);font-size:13px;font-variant-numeric:tabular-nums}
 .sb-name{color:var(--blue2);font-weight:600;font-size:9px;line-height:1.15;word-break:break-all}
 /* Modal */
 .modal-bg{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center}
-.modal{width:100%;max-width:420px;background:#1a1a2e;border-radius:16px 16px 0 0;padding:20px 16px 28px;max-height:85vh;overflow-y:auto}
+.modal{width:100%;max-width:420px;background:var(--modal-bg);border-radius:16px 16px 0 0;padding:20px 16px 28px;max-height:85vh;overflow-y:auto}
 .modal h3{font-size:16px;font-weight:800;color:var(--blue2)}
-.modal input[type=text],.modal input[type=number]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(100,180,255,.2);background:rgba(0,0,0,.3);color:#dddde5;font-size:14px;outline:none}
+.modal input[type=text],.modal input[type=number]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--modal-input-border);background:var(--modal-input-bg);color:var(--text-primary);font-size:14px;outline:none}
 .modal input[type=number]{color:var(--gold);font-size:24px;font-weight:800;text-align:center}
 .cand{padding:6px 12px;border-radius:8px;border:1px solid rgba(100,180,255,.2);background:rgba(100,180,255,.08);color:var(--blue2);font-size:12px;font-weight:600;touch-action:manipulation}
-.foot{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(8,8,15,.95) 25%);padding:14px 14px 8px;text-align:center;font-size:8px;color:rgba(255,255,255,.15);pointer-events:none}
+.foot{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(transparent,var(--footer-bg) 25%);padding:14px 14px 8px;text-align:center;font-size:8px;color:var(--footer-color);pointer-events:none}
 </style>
 </head>
 <body>
@@ -204,6 +234,9 @@ const loadParty=()=>{try{return JSON.parse(localStorage.getItem(LS_PARTY))||[];}
 const saveParty_=p=>{localStorage.setItem(LS_PARTY,JSON.stringify(p));};
 
 function App(){
+  const[theme,setTheme]=useState(()=>localStorage.getItem('pokechamp_theme')||'dark');
+  useEffect(()=>{document.documentElement.setAttribute('data-theme',theme);localStorage.setItem('pokechamp_theme',theme);},[theme]);
+  const toggleTheme=()=>setTheme(t=>t==='dark'?'light':'dark');
   const[q,setQ]=useState("");
   const[mega,setMega]=useState(true);
   const[modes,setModes]=useState(new Set(["fastest"]));
@@ -311,7 +344,13 @@ function App(){
 
   return <div style={{paddingRight:hasParty?"var(--bar-w)":"0"}}>
     {/* Header */}
-    <div className="hdr"><small>POKÉMON CHAMPIONS</small><h1>素早さ早見表</h1></div>
+    <div className="hdr">
+      <small>POKÉMON CHAMPIONS</small>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <h1>素早さ早見表</h1>
+        <button className="theme-btn" onClick={toggleTheme}>{theme==='dark'?'☀️':'🌙'}</button>
+      </div>
+    </div>
 
     {/* Party + Box */}
     <div className="sec" style={{paddingBottom:0}}>
@@ -339,16 +378,16 @@ function App(){
     {/* Box panel */}
     {showBox&&<div className="sec" style={{paddingTop:0}}>
       <div style={{padding:"8px",borderRadius:"10px",background:"rgba(100,180,255,.04)",border:"1px solid rgba(100,180,255,.12)"}}>
-        {box.length===0?<div style={{fontSize:"11px",color:"rgba(255,255,255,.3)",textAlign:"center",padding:"8px"}}>
+        {box.length===0?<div style={{fontSize:"11px",color:"var(--text-muted)",textAlign:"center",padding:"8px"}}>
           ボックスは空です。</div>
         :<div style={{display:"flex",flexWrap:"wrap",gap:"3px",marginBottom:"6px"}}>
           {[...box].sort((a,b)=>b.speed-a.speed).map(item=>{
             const inParty=party.includes(item.id);
             return <div key={item.id} style={{display:"flex",alignItems:"center",gap:"3px",
               padding:"3px 6px",borderRadius:"6px",fontSize:"10px",fontWeight:600,cursor:"pointer",
-              background:inParty?"rgba(100,180,255,.15)":"rgba(255,255,255,.04)",
-              border:`1px solid ${inParty?"rgba(100,180,255,.35)":"rgba(255,255,255,.08)"}`,
-              color:inParty?"var(--blue2)":"rgba(255,255,255,.5)"}}>
+              background:inParty?"rgba(100,180,255,.15)":"var(--btn-bg-off)",
+              border:`1px solid ${inParty?"rgba(100,180,255,.35)":"var(--btn-border-off)"}`,
+              color:inParty?"var(--blue2)":"var(--text-muted)"}}>
               <span onClick={()=>toggleParty(item.id)} style={{flex:1}}>
                 {item.scarf&&<span style={{color:"var(--red)",fontWeight:800}}>【ス】</span>}
                 {item.nick||item.pokemon} <span style={{color:"var(--gold)",fontWeight:800}}>{item.speed}</span>
@@ -379,29 +418,29 @@ function App(){
     {/* Search */}
     <div className="sec">
       <input type="text" placeholder="ひらがな・カタカナ・タイプで検索..." value={q} onChange={e=>setQ(e.target.value)}
-        style={{width:"100%",padding:"8px 12px",borderRadius:"10px",border:"1px solid rgba(255,200,0,.12)",
-          background:"rgba(255,255,255,.04)",color:"#dddde5",fontSize:"14px",outline:"none"}}/>
+        style={{width:"100%",padding:"8px 12px",borderRadius:"10px",border:"1px solid var(--input-border)",
+          background:"var(--input-bg)",color:"var(--text-primary)",fontSize:"14px",outline:"none"}}/>
     </div>
 
     {/* Controls */}
     <div className="sec">
-      <div style={{fontSize:"10px",color:"rgba(255,255,255,.3)",marginBottom:"3px",fontWeight:600}}>性格・振り方（複数可）</div>
+      <div style={{fontSize:"10px",color:"var(--text-muted)",marginBottom:"3px",fontWeight:600}}>性格・振り方（複数可）</div>
       <div style={{display:"flex",gap:"3px",marginBottom:"6px"}}>
         {SPS.map(s=>{const on=modes.has(s.k);return <button key={s.k} onClick={()=>togMode(s.k)} className="tbtn"
-          style={{border:`1px solid ${on?s.c+"60":"rgba(255,255,255,.06)"}`,background:on?s.c+"18":"rgba(255,255,255,.02)",color:on?s.c:"rgba(255,255,255,.3)"}}>{s.l}</button>;})}
+          style={{border:`1px solid ${on?s.c+"60":"var(--btn-border-off)"}`,background:on?s.c+"18":"var(--btn-bg-off)",color:on?s.c:"var(--text-muted)"}}>{s.l}</button>;})}
       </div>
-      <div style={{fontSize:"10px",color:"rgba(255,255,255,.3)",marginBottom:"3px",fontWeight:600}}>補正・特性</div>
+      <div style={{fontSize:"10px",color:"var(--text-muted)",marginBottom:"3px",fontWeight:600}}>補正・特性</div>
       <div style={{display:"flex",gap:"4px",flexWrap:"wrap",marginBottom:"4px"}}>
         {[{on:scarf,set:setScarf,i:"🧣",l:"ス",f:"スカーフ",c:"#e74c3c"},
           {on:tw,set:setTw,i:"💨",l:"追",f:"追い風",c:"#A98FF3"},
           {on:para,set:setPara,i:"⚡",l:"痺",f:"まひ",c:"#f39c12"},
           {on:abOn,set:setAbOn,i:"✦",l:"",f:"特性倍速",c:"#7AC74C",sub:"軽/水/砂/葉/雪/波/加速"}
         ].map((m,i)=><button key={i} onClick={()=>m.set(!m.on)} className="mbtn"
-          style={{border:`1px solid ${m.on?m.c+"50":"rgba(255,255,255,.06)"}`,background:m.on?m.c+"18":"rgba(255,255,255,.02)",color:m.on?m.c:"rgba(255,255,255,.3)"}}>
+          style={{border:`1px solid ${m.on?m.c+"50":"var(--btn-border-off)"}`,background:m.on?m.c+"18":"var(--btn-bg-off)",color:m.on?m.c:"var(--text-muted)"}}>
           {m.i} {m.l?`【${m.l}】`:""}{m.f}{m.sub&&<span style={{opacity:.6,marginLeft:"3px"}}>{m.sub}</span>}</button>)}
         <button onClick={()=>setMega(!mega)} className="mbtn"
-          style={{border:`1px solid ${mega?"rgba(180,100,255,.35)":"rgba(255,255,255,.06)"}`,
-          background:mega?"rgba(180,100,255,.1)":"rgba(255,255,255,.02)",color:mega?"rgba(180,100,255,.8)":"rgba(255,255,255,.3)"}}>
+          style={{border:`1px solid ${mega?"rgba(180,100,255,.35)":"var(--btn-border-off)"}`,
+          background:mega?"rgba(180,100,255,.1)":"var(--btn-bg-off)",color:mega?"rgba(180,100,255,.8)":"var(--text-muted)"}}>
           {mega?"✦ メガ":"✧ メガ"}</button>
       </div>
     </div>
@@ -416,7 +455,7 @@ function App(){
           <div className="row-in">
             <div style={{display:"flex",alignItems:"center",gap:"6px",marginBottom:"4px"}}>
               <span className="spd">{v}</span>
-              {e.length>1&&<span style={{fontSize:"9px",color:"rgba(255,255,255,.2)"}}>{e.length}</span>}
+              {e.length>1&&<span style={{fontSize:"9px",color:"var(--text-muted)"}}>{e.length}</span>}
               {ptyHere.length>0&&<span style={{fontSize:"9px",color:"var(--blue)",fontWeight:700}}>
                 ● {ptyHere.map(m=>m.nick||m.pokemon).join(", ")}</span>}
             </div>
@@ -434,7 +473,7 @@ function App(){
                   </div>
                   <div style={{display:"flex",gap:"1px",alignItems:"center"}}>
                     {en.p.type.split("/").map(t=><span key={t} className="typeb" style={{background:TC[t]||"#888"}}>{t}</span>)}
-                    <span style={{fontSize:"9px",color:"rgba(255,255,255,.25)",marginLeft:"3px"}}>S{en.p.base}</span>
+                    <span style={{fontSize:"9px",color:"var(--text-muted)",marginLeft:"3px"}}>S{en.p.base}</span>
                   </div>
                 </div>;
               })}
@@ -465,7 +504,7 @@ function App(){
       <div className="modal" onClick={e=>e.stopPropagation()}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px"}}>
           <h3>{modalMode==="edit"?"ポケモン編集":"ポケモン登録"}</h3>
-          <button onClick={()=>setShowModal(false)} style={{background:"rgba(255,255,255,.08)",color:"rgba(255,255,255,.5)",borderRadius:"8px",padding:"4px 10px",fontSize:"12px"}}>✕</button>
+          <button onClick={()=>setShowModal(false)} style={{background:"var(--modal-close-bg)",color:"var(--modal-close-color)",borderRadius:"8px",padding:"4px 10px",fontSize:"12px"}}>✕</button>
         </div>
 
         {!eName?<>
@@ -479,12 +518,12 @@ function App(){
           <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"10px",padding:"8px 12px",
             borderRadius:"8px",background:"rgba(100,180,255,.08)",border:"1px solid rgba(100,180,255,.2)"}}>
             <span style={{fontSize:"14px",fontWeight:700,color:"var(--blue2)",flex:1}}>{eName}</span>
-            <span style={{fontSize:"11px",color:"rgba(255,255,255,.4)"}}>S{PKM.find(p=>p.name===eName)?.base}</span>
-            <button onClick={()=>setEName("")} style={{background:"rgba(255,255,255,.1)",color:"rgba(255,255,255,.5)",borderRadius:"5px",padding:"2px 8px",fontSize:"10px"}}>変更</button>
+            <span style={{fontSize:"11px",color:"var(--text-muted)"}}>S{PKM.find(p=>p.name===eName)?.base}</span>
+            <button onClick={()=>setEName("")} style={{background:"var(--modal-close-bg)",color:"var(--modal-close-color)",borderRadius:"5px",padding:"2px 8px",fontSize:"10px"}}>変更</button>
           </div>
 
           {/* ニックネーム */}
-          <div style={{fontSize:"11px",color:"rgba(255,255,255,.4)",marginBottom:"4px",fontWeight:600}}>ニックネーム（任意）</div>
+          <div style={{fontSize:"11px",color:"var(--text-muted)",marginBottom:"4px",fontWeight:600}}>ニックネーム（任意）</div>
           <input type="text" placeholder="例: スカーフガブ、エースガブ..." value={eNick} onChange={e=>setENick(e.target.value)}
             style={{marginBottom:"10px"}}/>
 
@@ -492,39 +531,41 @@ function App(){
           <div style={{display:"flex",gap:"4px",marginBottom:"10px"}}>
             {[{k:"calc",l:"能力P + 性格で計算"},{k:"direct",l:"実数値を直接入力"}].map(m=>
               <button key={m.k} onClick={()=>setEInputMode(m.k)} style={{flex:1,padding:"7px",borderRadius:"8px",
-                background:eInputMode===m.k?"rgba(100,180,255,.2)":"rgba(255,255,255,.04)",
-                color:eInputMode===m.k?"var(--blue2)":"rgba(255,255,255,.35)",fontSize:"12px",fontWeight:700}}>{m.l}</button>)}
+                background:eInputMode===m.k?"rgba(100,180,255,.2)":"var(--btn-bg-off)",
+                color:eInputMode===m.k?"var(--blue2)":"var(--text-muted)",fontSize:"12px",fontWeight:700}}>{m.l}</button>)}
           </div>
 
           {eInputMode==="calc"?<>
-            <div style={{fontSize:"11px",color:"rgba(255,255,255,.4)",marginBottom:"4px",fontWeight:600}}>性格補正</div>
+            <div style={{fontSize:"11px",color:"var(--text-muted)",marginBottom:"4px",fontWeight:600}}>性格補正</div>
             <div style={{display:"flex",gap:"4px",marginBottom:"10px"}}>
               {[{k:"up",l:"↑ 補正あり",c:"#FFD700"},{k:"neutral",l:"― 補正なし",c:"#999"},{k:"down",l:"↓ 下降",c:"#ff8888"}].map(n=>
                 <button key={n.k} onClick={()=>setENature(n.k)} style={{flex:1,padding:"7px 4px",borderRadius:"8px",
-                  border:`1px solid ${eNature===n.k?n.c+"60":"rgba(255,255,255,.06)"}`,
-                  background:eNature===n.k?n.c+"18":"rgba(255,255,255,.02)",
-                  color:eNature===n.k?n.c:"rgba(255,255,255,.3)",fontSize:"10px",fontWeight:700}}>{n.l}</button>)}
+                  border:`1px solid ${eNature===n.k?n.c+"60":"var(--btn-border-off)"}`,
+                  background:eNature===n.k?n.c+"18":"var(--btn-bg-off)",
+                  color:eNature===n.k?n.c:"var(--text-muted)",fontSize:"10px",fontWeight:700}}>{n.l}</button>)}
             </div>
-            <div style={{fontSize:"11px",color:"rgba(255,255,255,.4)",marginBottom:"4px",fontWeight:600}}>
+            <div style={{fontSize:"11px",color:"var(--text-muted)",marginBottom:"4px",fontWeight:600}}>
               能力ポイント: <span style={{color:"var(--gold)"}}>{eEp}</span></div>
             <input type="range" min={0} max={32} value={eEp} onChange={e=>setEEp(Number(e.target.value))} style={{width:"100%",marginBottom:"6px"}}/>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:"9px",color:"rgba(255,255,255,.3)",marginBottom:"10px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:"9px",color:"var(--text-muted)",marginBottom:"10px"}}>
               <span>0</span><span>8</span><span>16</span><span>24</span><span>32</span></div>
-            <div style={{textAlign:"center",padding:"12px",borderRadius:"10px",background:"rgba(255,215,0,.06)",border:"1px solid rgba(255,215,0,.15)"}}>
-              <div style={{fontSize:"11px",color:"rgba(255,255,255,.4)",marginBottom:"2px"}}>素早さ実数値</div>
+            <div style={{textAlign:"center",padding:"12px",borderRadius:"10px",
+              background:theme==='dark'?"rgba(255,215,0,.06)":"rgba(184,134,11,.06)",
+              border:`1px solid ${theme==='dark'?"rgba(255,215,0,.15)":"rgba(184,134,11,.2)"}`}}>
+              <div style={{fontSize:"11px",color:"var(--text-muted)",marginBottom:"2px"}}>素早さ実数値</div>
               <div style={{fontSize:"32px",fontWeight:900,color:"var(--gold)",fontVariantNumeric:"tabular-nums"}}>
                 {eScarf?Math.floor(eCalcSpd*1.5):eCalcSpd}</div>
-              {eScarf&&<div style={{fontSize:"11px",color:"rgba(255,255,255,.35)",marginTop:"2px"}}>({eCalcSpd} × 1.5)</div>}
+              {eScarf&&<div style={{fontSize:"11px",color:"var(--text-muted)",marginTop:"2px"}}>({eCalcSpd} × 1.5)</div>}
             </div>
             <button onClick={()=>setEScarf(!eScarf)} style={{width:"100%",marginTop:"10px",padding:"9px",borderRadius:"8px",
-              border:`1px solid ${eScarf?"#e74c3c60":"rgba(255,255,255,.08)"}`,
-              background:eScarf?"rgba(231,76,60,.15)":"rgba(255,255,255,.03)",
-              color:eScarf?"#e74c3c":"rgba(255,255,255,.35)",fontSize:"12px",fontWeight:700}}>
+              border:`1px solid ${eScarf?"#e74c3c60":"var(--btn-border-off)"}`,
+              background:eScarf?"rgba(231,76,60,.15)":"var(--btn-bg-off)",
+              color:eScarf?"#e74c3c":"var(--text-muted)",fontSize:"12px",fontWeight:700}}>
               🧣 こだわりスカーフ（×1.5）{eScarf?" ✓":""}</button>
           </>:<>
-            <div style={{fontSize:"11px",color:"rgba(255,255,255,.4)",marginBottom:"4px",fontWeight:600}}>素早さ実数値</div>
+            <div style={{fontSize:"11px",color:"var(--text-muted)",marginBottom:"4px",fontWeight:600}}>素早さ実数値</div>
             <input type="number" value={eSpeed} onChange={e=>setESpeed(e.target.value)}/>
-            <div style={{fontSize:"10px",color:"rgba(255,255,255,.3)",textAlign:"center",marginTop:"4px"}}>
+            <div style={{fontSize:"10px",color:"var(--text-muted)",textAlign:"center",marginTop:"4px"}}>
               ※スカーフ込みの値を直接入力してください</div>
           </>}
 
