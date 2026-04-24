@@ -312,7 +312,8 @@ function App(){
     }
     setShowModal(false);
   };
-  const removeFromBox=(id)=>{setBox(box.filter(b=>b.id!==id));setParty(party.filter(p=>p!==id));};
+  const[confirmDeleteId,setConfirmDeleteId]=useState(null);
+  const removeFromBox=(id)=>{setBox(box.filter(b=>b.id!==id));setParty(party.filter(p=>p!==id));setConfirmDeleteId(null);};
   const toggleParty=(id)=>{
     if(party.includes(id)){setParty(party.filter(p=>p!==id));}
     else{setParty([...party,id]);}
@@ -393,7 +394,7 @@ function App(){
                 {item.nick||item.pokemon} <span style={{color:"var(--gold)",fontWeight:800}}>{item.speed}</span>
               </span>
               <span onClick={()=>openEdit(item.id)} style={{opacity:.4,fontSize:"9px"}}>✎</span>
-              <span onClick={()=>removeFromBox(item.id)} style={{opacity:.3,fontSize:"11px"}}>×</span>
+              <span onClick={e=>{e.stopPropagation();setConfirmDeleteId(item.id);}} style={{opacity:.3,fontSize:"11px"}}>×</span>
             </div>;
           })}
         </div>}
@@ -498,6 +499,28 @@ function App(){
       <button onClick={openAddParty} style={{margin:"4px 3px",padding:"6px 0",borderRadius:"6px",
         border:"1px solid rgba(100,180,255,.2)",background:"rgba(100,180,255,.08)",color:"var(--blue)",fontSize:"10px",fontWeight:700}}>+</button>
     </div>}
+
+    {/* Delete confirm dialog */}
+    {confirmDeleteId&&(()=>{const item=box.find(b=>b.id===confirmDeleteId);if(!item)return null;const label=item.nick||item.pokemon;return(
+      <div className="modal-bg" onClick={()=>setConfirmDeleteId(null)}>
+        <div className="modal" onClick={e=>e.stopPropagation()} style={{paddingBottom:"20px"}}>
+          <div style={{textAlign:"center",marginBottom:"16px"}}>
+            <div style={{fontSize:"13px",color:"var(--text-muted)",marginBottom:"8px"}}>ボックスから削除</div>
+            <div style={{fontSize:"17px",fontWeight:800,color:"var(--text-primary)"}}>
+              {label}<span style={{color:"var(--text-muted)",fontWeight:400,fontSize:"13px"}}>　を削除しますか？</span>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:"8px"}}>
+            <button onClick={()=>setConfirmDeleteId(null)} className="mbtn" style={{flex:1,padding:"10px",
+              border:"1px solid var(--btn-border-off)",background:"var(--btn-bg-off)",color:"var(--text-muted)",fontSize:"13px"}}>
+              キャンセル</button>
+            <button onClick={()=>removeFromBox(confirmDeleteId)} className="mbtn" style={{flex:1,padding:"10px",
+              border:"1px solid rgba(231,76,60,.4)",background:"rgba(231,76,60,.12)",color:"#e74c3c",fontSize:"13px",fontWeight:700}}>
+              削除する</button>
+          </div>
+        </div>
+      </div>
+    );})()}
 
     {/* Modal */}
     {showModal&&<div className="modal-bg" onClick={()=>setShowModal(false)}>
