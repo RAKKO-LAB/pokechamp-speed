@@ -570,8 +570,14 @@ function App(){
             <div style={{fontSize:"11px",color:"var(--text-muted)",marginBottom:"4px",fontWeight:600}}>
               能力ポイント: <span style={{color:"var(--gold)"}}>{eEp}</span></div>
             <input type="range" min={0} max={32} value={eEp} onChange={e=>setEEp(Number(e.target.value))} style={{width:"100%",marginBottom:"6px"}}/>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:"9px",color:"var(--text-muted)",marginBottom:"10px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:"9px",color:"var(--text-muted)",marginBottom:"6px"}}>
               <span>0</span><span>8</span><span>16</span><span>24</span><span>32</span></div>
+            <div style={{display:"flex",gap:"6px",marginBottom:"10px"}}>
+              <button onClick={()=>setEEp(v=>Math.max(0,v-1))} style={{flex:1,padding:"7px",borderRadius:"8px",fontSize:"16px",fontWeight:700,
+                border:"1px solid var(--btn-border-off)",background:"var(--btn-bg-off)",color:"var(--text-primary)"}}>−</button>
+              <button onClick={()=>setEEp(v=>Math.min(32,v+1))} style={{flex:1,padding:"7px",borderRadius:"8px",fontSize:"16px",fontWeight:700,
+                border:"1px solid var(--btn-border-off)",background:"var(--btn-bg-off)",color:"var(--text-primary)"}}>＋</button>
+            </div>
             <div style={{textAlign:"center",padding:"12px",borderRadius:"10px",
               background:theme==='dark'?"rgba(255,215,0,.06)":"rgba(184,134,11,.06)",
               border:`1px solid ${theme==='dark'?"rgba(255,215,0,.15)":"rgba(184,134,11,.2)"}`}}>
